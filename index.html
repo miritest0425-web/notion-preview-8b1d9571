@@ -1,0 +1,474 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><script>
+(function(){
+  var __k="10e34a84-f41f-4a84-9a74-204afc4446c3";
+  var __a=null;
+  var __c=null;
+  if(!__k&&!__c)return;
+  var _f=window.fetch;
+  function patchUrls(data){
+    if(!__a)return data;
+    try{
+      var s=JSON.stringify(data);
+      var keys=Object.keys(__a);
+      for(var i=0;i<keys.length;i++){s=s.split(keys[i]).join(__a[keys[i]]);}
+      return JSON.parse(s);
+    }catch(e){return data;}
+  }
+  window.fetch=function(url,opts){
+    var u=typeof url==="string"?url:String(url);
+    if(!u.startsWith("/api/notion/"))return _f.apply(this,arguments);
+    var path=u.slice("/api/notion".length);
+    var method=(opts&&opts.method)||"GET";
+    var body;
+    try{body=opts&&opts.body?JSON.parse(opts.body):undefined;}catch(e){body=opts&&opts.body;}
+    if(__c){
+      var ck=method+":"+path+":"+(body?JSON.stringify(body):"");
+      if(__c[ck]){
+        return Promise.resolve(new Response(JSON.stringify(patchUrls(__c[ck])),{
+          status:200,headers:{"Content-Type":"application/json"}
+        }));
+      }
+    }
+    if(!__k)return Promise.reject(new Error("no deploy key"));
+    return _f("https://misiso.com/api/notion/deploy-proxy",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({deployKey:__k,path:path,method:method,body:body})
+    }).then(function(r){
+      var status=r.status;
+      return r.json().then(function(data){
+        return new Response(JSON.stringify(patchUrls(data)),{
+          status:status,
+          headers:{"Content-Type":"application/json"}
+        });
+      });
+    });
+  };
+})();
+</script>
+<meta property="og:type" content="website"/>
+<meta property="og:title" content="Notion Code Preview"/>
+<meta property="og:description" content="Built with Notion Code Previewer"/>
+<meta property="og:image" content="https://miritest0425-web.github.io/notion-preview-8b1d9571/og-image.png"/>
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="630"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="https://miritest0425-web.github.io/notion-preview-8b1d9571/og-image.png"/>
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2032%2032'%3E%3Crect%20width%3D'32'%20height%3D'32'%20rx%3D'6'%20fill%3D'%25236366f1'%2F%3E%3Ctext%20x%3D'16'%20y%3D'22'%20text-anchor%3D'middle'%20font-size%3D'18'%20fill%3D'white'%20font-family%3D'sans-serif'%3EN%3C%2Ftext%3E%3C%2Fsvg%3E"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+/* ===== Design Tokens ===== */
+:root {
+  --bg: #0b0a0f;
+  --bg-card: #14131a;
+  --surface: #111018;
+  --border: rgba(255, 255, 255, .08);
+  --text: #ede9e3;
+  --text-dim: #8a8598;
+  --accent: #d4a259;
+  --accent-2: #e8c078;
+  --accent-3: #c48b3c;
+  --grad: linear-gradient(135deg, #d4a259 0%, #e8c078 50%, #c48b3c 100%);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --pill: 99px;
+  --ease: .35s cubic-bezier(.4, 0, .2, 1);
+  --shadow: 0 20px 60px rgba(0, 0, 0, .45);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: var(--bg); color: var(--text); }
+body {
+  font-family: 'Noto Sans KR', system-ui, -apple-system, sans-serif;
+  font-size: 16px; line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+img { max-width: 100%; display: block; }
+button { font: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+a { color: inherit; text-decoration: none; }
+
+/* ===== Typography ===== */
+h1, h2, h3 { font-weight: 800; letter-spacing: -.02em; line-height: 1.2; }
+h1 { font-size: clamp(2rem, 5.5vw, 3.6rem); font-weight: 900; letter-spacing: -.03em; }
+h2 { font-size: clamp(1.5rem, 3.5vw, 2.3rem); }
+h3 { font-size: 1.2rem; }
+.eyebrow {
+  display: inline-block;
+  font-size: .78rem; letter-spacing: .15em; text-transform: uppercase;
+  color: var(--accent); font-weight: 700; margin-bottom: 16px;
+}
+.grad-text {
+  background: var(--grad);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ===== Layout ===== */
+.container { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+section { padding: 100px 0; position: relative; }
+.sec-dark { background: var(--surface); }
+.sec-head { text-align: center; max-width: 720px; margin: 0 auto 56px; }
+.sec-head p { color: var(--text-dim); margin-top: 14px; }
+
+/* ===== Buttons ===== */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 14px 26px; border-radius: var(--pill);
+  font-weight: 700; font-size: .95rem;
+  transition: all var(--ease);
+  white-space: nowrap;
+}
+.btn-lg { padding: 16px 32px; font-size: 1rem; }
+.btn-primary { background: var(--grad); color: #1a1208; box-shadow: 0 10px 30px rgba(212, 162, 89, .3); }
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 14px 40px rgba(212, 162, 89, .45); }
+.btn-ghost { background: rgba(255, 255, 255, .06); color: var(--text); border: 1px solid var(--border); }
+.btn-ghost:hover { background: rgba(255, 255, 255, .1); border-color: var(--accent); }
+
+.chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 14px; border-radius: var(--pill);
+  background: rgba(212, 162, 89, .12); color: var(--accent);
+  font-size: .8rem; font-weight: 600;
+  border: 1px solid rgba(212, 162, 89, .25);
+}
+
+/* ===== Nav ===== */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  background: rgba(11, 10, 15, .7);
+  border-bottom: 1px solid var(--border);
+}
+.nav-inner { display: flex; align-items: center; justify-content: space-between; height: 68px; }
+.nav-logo { font-weight: 800; font-size: 1.1rem; letter-spacing: -.02em; }
+.nav-logo span { background: var(--grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.nav-links { display: flex; gap: 32px; }
+.nav-links button { color: var(--text-dim); font-size: .92rem; transition: color var(--ease); }
+.nav-links button:hover, .nav-links button.nav-active { color: var(--accent); }
+.nav-cta { padding: 10px 20px; font-size: .88rem; }
+
+/* ===== Hero ===== */
+.hero {
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  text-align: center; padding: 120px 24px 80px;
+  position: relative; overflow: hidden;
+}
+.hero::before, .hero::after {
+  content: ''; position: absolute; width: 600px; height: 600px;
+  border-radius: 50%; filter: blur(120px); opacity: .25; pointer-events: none;
+}
+.hero::before { background: var(--accent); top: -200px; left: -100px; }
+.hero::after { background: var(--accent-3); bottom: -200px; right: -100px; }
+.hero-inner { position: relative; z-index: 1; max-width: 880px; }
+.hero h1 { margin: 24px 0 20px; }
+.hero-sub { color: var(--text-dim); font-size: 1.1rem; max-width: 600px; margin: 0 auto 36px; }
+.hero-cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 60px; }
+.hero-stats {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px;
+  max-width: 600px; margin: 0 auto;
+  padding-top: 40px; border-top: 1px solid var(--border);
+}
+.stat-num { font-size: 2rem; font-weight: 900; }
+.stat-num.grad { background: var(--grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.stat-label { color: var(--text-dim); font-size: .85rem; margin-top: 4px; }
+.scroll-hint {
+  position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%);
+  color: var(--text-dim); font-size: .8rem;
+  animation: float 2.5s ease-in-out infinite;
+}
+@keyframes float { 0%, 100% { transform: translate(-50%, 0); } 50% { transform: translate(-50%, -8px); } }
+
+/* ===== Trust Bar ===== */
+.trust { padding: 60px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.trust-label { text-align: center; color: var(--text-dim); font-size: .78rem; letter-spacing: .2em; text-transform: uppercase; margin-bottom: 24px; }
+.trust-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 36px; }
+.trust-item { color: var(--text-dim); font-weight: 600; opacity: .5; transition: opacity var(--ease); }
+.trust-item:hover { opacity: .85; }
+
+/* ===== Services ===== */
+.filter-bar { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 40px; }
+.f-chip {
+  padding: 8px 18px; border-radius: var(--pill);
+  background: transparent; color: var(--text-dim);
+  border: 1px solid var(--border); font-size: .88rem;
+  transition: all var(--ease);
+}
+.f-chip:hover { color: var(--text); border-color: rgba(255, 255, 255, .2); }
+.f-chip.active { background: var(--grad); color: #1a1208; border-color: transparent; font-weight: 700; }
+
+.svc-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+.svc-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); overflow: hidden; cursor: pointer;
+  transition: all var(--ease);
+}
+.svc-card:hover { transform: translateY(-4px); border-color: rgba(212, 162, 89, .4); box-shadow: var(--shadow); }
+.svc-thumb { aspect-ratio: 16 / 10; background: linear-gradient(135deg, #1a1820, #0d0c12); position: relative; overflow: hidden; }
+.svc-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.svc-thumb-fb { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 4rem; }
+.svc-body { padding: 24px; }
+.svc-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.svc-tag { font-size: .72rem; padding: 4px 10px; border-radius: var(--pill); background: rgba(255, 255, 255, .06); color: var(--text-dim); }
+.svc-tag.cat { background: rgba(212, 162, 89, .12); color: var(--accent); }
+.svc-tag.status-open { background: rgba(96, 165, 250, .15); color: #93c5fd; }
+.svc-tag.status-always { background: rgba(74, 222, 128, .15); color: #86efac; }
+.svc-card h3 { margin-bottom: 8px; }
+.svc-card p { color: var(--text-dim); font-size: .92rem; }
+.svc-price { margin-top: 16px; font-weight: 700; color: var(--accent); }
+
+/* ===== Process ===== */
+.proc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; position: relative; }
+.proc-step { text-align: center; position: relative; padding: 24px; }
+.proc-step:not(:last-child)::after {
+  content: ''; position: absolute; top: 60px; right: -12px; width: 24px; height: 1px;
+  background: linear-gradient(to right, var(--accent), transparent);
+}
+.proc-icon { font-size: 3rem; margin-bottom: 16px; }
+.proc-step h3 { margin-bottom: 8px; }
+.proc-step p { color: var(--text-dim); font-size: .9rem; }
+
+/* ===== Reviews ===== */
+.rev-banner {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+  max-width: 720px; margin: 0 auto 48px; padding: 32px;
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+  text-align: center;
+}
+.rev-stat-num { font-size: 1.8rem; font-weight: 900; }
+.rev-stat-label { color: var(--text-dim); font-size: .85rem; margin-top: 4px; }
+
+.rev-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.rev-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 24px; cursor: pointer;
+  transition: all var(--ease);
+}
+.rev-card:hover { transform: translateY(-4px); border-color: rgba(212, 162, 89, .3); }
+.rev-stars { color: var(--accent); font-size: .95rem; margin-bottom: 12px; letter-spacing: 1px; }
+.rev-quote { color: var(--text); font-size: .95rem; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 20px; }
+.rev-foot { display: flex; align-items: center; gap: 12px; }
+.rev-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--grad); display: flex; align-items: center; justify-content: center; font-weight: 700; color: #1a1208; }
+.rev-name { font-weight: 600; font-size: .9rem; }
+.rev-date { color: var(--text-dim); font-size: .78rem; }
+.rev-svc { margin-top: 12px; }
+
+/* ===== FAQ ===== */
+.faq-wrap { max-width: 720px; margin: 0 auto; }
+.faq-item {
+  border-bottom: 1px solid var(--border); padding: 8px 0;
+}
+.faq-q {
+  width: 100%; display: flex; justify-content: space-between; align-items: center;
+  padding: 20px 0; text-align: left; font-weight: 600; font-size: 1.02rem;
+  transition: color var(--ease);
+}
+.faq-q:hover { color: var(--accent); }
+.faq-arrow { transition: transform var(--ease); color: var(--accent); font-size: 1.2rem; }
+.faq-item.open .faq-arrow { transform: rotate(180deg); }
+.faq-a {
+  max-height: 0; overflow: hidden; color: var(--text-dim); line-height: 1.7;
+  transition: max-height var(--ease), padding var(--ease);
+}
+.faq-item.open .faq-a { max-height: 500px; padding-bottom: 20px; }
+
+/* ===== Form ===== */
+.form-wrap { max-width: 600px; margin: 0 auto; }
+.form-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 40px;
+}
+.form-row { margin-bottom: 24px; }
+.form-label { display: block; font-weight: 600; font-size: .9rem; margin-bottom: 8px; }
+.form-input, .form-textarea, .form-select-trigger {
+  width: 100%; padding: 12px 16px;
+  background: rgba(0, 0, 0, .3); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); color: var(--text);
+  font-family: inherit; font-size: .95rem; transition: border var(--ease);
+}
+.form-input:focus, .form-textarea:focus, .form-select-trigger:focus { outline: none; border-color: var(--accent); }
+.form-textarea { resize: vertical; min-height: 120px; }
+
+.cs-wrap { position: relative; }
+.form-select-trigger { display: flex; justify-content: space-between; align-items: center; cursor: pointer; text-align: left; }
+.cs-arrow { transition: transform var(--ease); }
+.cs-open .cs-arrow { transform: rotate(180deg); }
+.cs-menu {
+  position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 10;
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  overflow: hidden; box-shadow: var(--shadow);
+}
+.cs-opt {
+  width: 100%; padding: 10px 16px; text-align: left;
+  display: flex; justify-content: space-between; align-items: center;
+  transition: background var(--ease);
+}
+.cs-opt:hover { background: rgba(212, 162, 89, .1); }
+.cs-check { color: var(--accent); }
+
+.star-row { display: flex; gap: 6px; }
+.star-btn { font-size: 1.6rem; color: rgba(255, 255, 255, .15); transition: all var(--ease); }
+.star-btn:hover, .star-btn.on { color: var(--accent); transform: scale(1.15); }
+
+.form-success { text-align: center; padding: 40px 20px; }
+.form-success .emoji { font-size: 4rem; margin-bottom: 16px; }
+.form-success-msg { color: var(--text-dim); margin: 12px 0 24px; }
+.btn-block { width: 100%; }
+.modal-quote { font-size: 1.05rem; color: var(--text); }
+.rev-foot-modal { margin-top: 24px; }
+
+/* ===== CTA ===== */
+.cta-wrap {
+  max-width: 880px; margin: 0 auto;
+  padding: 56px 32px; text-align: center;
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, rgba(212, 162, 89, .08), rgba(212, 162, 89, .02));
+  position: relative;
+}
+.cta-wrap::before {
+  content: ''; position: absolute; inset: 0; padding: 1px;
+  border-radius: var(--radius);
+  background: var(--grad);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  pointer-events: none;
+}
+.cta-wrap p { color: var(--text-dim); margin: 16px auto 28px; max-width: 520px; }
+.cta-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.cta-note { display: block; margin-top: 20px; color: var(--text-dim); font-size: .85rem; }
+
+/* ===== Footer ===== */
+.foot { padding: 60px 0 40px; border-top: 1px solid var(--border); }
+.foot-inner { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 24px; }
+.foot-brand { font-weight: 800; }
+.foot-links { display: flex; gap: 24px; flex-wrap: wrap; }
+.foot-links button { color: var(--text-dim); font-size: .88rem; transition: color var(--ease); }
+.foot-links button:hover { color: var(--accent); }
+.foot-link-strong { color: var(--accent) !important; font-weight: 600; }
+.foot-copy { color: var(--text-dim); font-size: .82rem; margin-top: 32px; text-align: center; }
+
+/* ===== Modal ===== */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(0, 0, 0, .7); backdrop-filter: blur(8px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px; animation: fadeIn .2s ease;
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.modal {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); max-width: 640px; width: 100%;
+  max-height: 88vh; overflow-y: auto; position: relative;
+  animation: slideUp .3s ease;
+}
+@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.modal-close {
+  position: absolute; top: 16px; right: 16px; z-index: 2;
+  width: 36px; height: 36px; border-radius: 50%;
+  background: rgba(0, 0, 0, .6); display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem; color: var(--text);
+}
+.modal-close:hover { background: rgba(0, 0, 0, .9); }
+.modal-thumb { aspect-ratio: 16 / 9; background: linear-gradient(135deg, #1a1820, #0d0c12); display: flex; align-items: center; justify-content: center; font-size: 5rem; }
+.modal-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.modal-body { padding: 32px; }
+.modal-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+.modal-desc { color: var(--text-dim); white-space: pre-wrap; margin-top: 16px; }
+.modal-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border); }
+.modal-price { font-size: 1.3rem; font-weight: 800; color: var(--accent); }
+
+.car-nav { display: flex; justify-content: space-between; align-items: center; padding: 16px 32px 0; }
+.car-arrow { width: 40px; height: 40px; border-radius: 50%; background: rgba(255, 255, 255, .06); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; transition: all var(--ease); }
+.car-arrow:hover:not(:disabled) { background: var(--grad); color: #1a1208; }
+.car-arrow:disabled { opacity: .3; cursor: not-allowed; }
+.car-idx { color: var(--text-dim); font-size: .9rem; }
+
+/* ===== Blog ===== */
+.blog-hero { padding: 140px 0 60px; text-align: center; }
+.blog-hero h1 { margin-bottom: 16px; }
+.blog-hero h1 em { font-style: italic; background: var(--grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.blog-hero p { color: var(--text-dim); max-width: 520px; margin: 0 auto; }
+.blog-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; padding-bottom: 100px; }
+.blog-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); overflow: hidden; cursor: pointer;
+  transition: all var(--ease);
+}
+.blog-card:hover { transform: translateY(-4px); border-color: rgba(212, 162, 89, .3); }
+.blog-card.featured { grid-column: span 2; }
+.blog-thumb { aspect-ratio: 16 / 9; background: linear-gradient(135deg, #1a1820, #0d0c12); position: relative; display: flex; align-items: center; justify-content: center; font-size: 4rem; }
+.blog-card.featured .blog-thumb { aspect-ratio: 21 / 9; }
+.blog-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.blog-body { padding: 24px; }
+.blog-cat { font-size: .72rem; letter-spacing: .15em; text-transform: uppercase; color: var(--accent); font-weight: 700; }
+.blog-card h3 { margin: 8px 0; font-size: 1.15rem; }
+.blog-card.featured h3 { font-size: 1.5rem; }
+.blog-card p { color: var(--text-dim); font-size: .9rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.blog-meta { display: flex; gap: 12px; align-items: center; margin-top: 16px; color: var(--text-dim); font-size: .8rem; }
+.blog-meta-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--text-dim); }
+
+/* ===== Article ===== */
+.article { padding: 120px 0 80px; }
+.article-inner { max-width: 760px; margin: 0 auto; }
+.article-back { color: var(--text-dim); margin-bottom: 32px; font-size: .9rem; }
+.article-back:hover { color: var(--accent); }
+.article-cat { color: var(--accent); font-size: .82rem; letter-spacing: .15em; text-transform: uppercase; font-weight: 700; }
+.article h1 { margin: 16px 0; }
+.article-meta { display: flex; gap: 16px; align-items: center; color: var(--text-dim); font-size: .9rem; padding-bottom: 32px; border-bottom: 1px solid var(--border); margin-bottom: 32px; }
+.article-meta .rev-avatar { width: 28px; height: 28px; font-size: .8rem; }
+.article-img { aspect-ratio: 16 / 9; max-height: 320px; width: 100%; background: linear-gradient(135deg, #1a1820, #0d0c12); display: flex; align-items: center; justify-content: center; font-size: 6rem; border-radius: var(--radius); margin-bottom: 32px; overflow: hidden; }
+.article-img img { width: 100%; height: 100%; object-fit: cover; }
+.article-body { color: var(--text); line-height: 1.8; }
+.article-body h2 { margin: 32px 0 16px; }
+.article-body h3 { margin: 24px 0 12px; }
+.article-body p { margin-bottom: 16px; color: rgba(237, 233, 227, .85); }
+.article-body ul, .article-body ol { margin: 0 0 16px 24px; color: rgba(237, 233, 227, .85); }
+.article-body strong { color: var(--accent); font-weight: 700; }
+.article-tags { margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--border); display: flex; gap: 8px; flex-wrap: wrap; }
+.article-tag { font-size: .82rem; color: var(--text-dim); }
+.article-tag::before { content: '#'; color: var(--accent); margin-right: 2px; }
+
+/* ===== State Messages ===== */
+.state-msg { text-align: center; padding: 80px 20px; color: var(--text-dim); }
+.spinner {
+  display: inline-block; width: 24px; height: 24px;
+  border: 2px solid rgba(212, 162, 89, .2); border-top-color: var(--accent);
+  border-radius: 50%; animation: spin .8s linear infinite; margin-right: 12px;
+  vertical-align: middle;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ===== Animation on Scroll ===== */
+.anim { opacity: 0; transform: translateY(28px); transition: opacity .6s var(--ease), transform .6s var(--ease); }
+.anim.show { opacity: 1; transform: translateY(0); }
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  section { padding: 64px 0; }
+  .container { padding: 0 16px; }
+  .nav-links { display: none; }
+  .hero { padding: 100px 16px 60px; }
+  .hero-cta { flex-direction: column; align-items: stretch; }
+  .hero-cta .btn { width: 100%; }
+  .hero-stats { grid-template-columns: 1fr; gap: 20px; padding-top: 28px; }
+  .svc-grid, .rev-grid, .blog-grid, .rev-banner { grid-template-columns: 1fr; }
+  .blog-card.featured { grid-column: span 1; }
+  .proc-grid { grid-template-columns: repeat(2, 1fr); }
+  .proc-step::after { display: none; }
+  .form-card { padding: 24px; }
+  .modal-body { padding: 24px; }
+  .foot-inner { flex-direction: column; align-items: flex-start; }
+}
+</style>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script>if(window.Babel)Babel.disableScriptTags=true;</script>
+</head><body><div id="root"></div><script type="module">
+var __stripPlugin=function(){return{visitor:{ImportDeclaration:function(path){var src=path.node.source.value;if(src.indexOf("./")===0||src.indexOf("../")===0)path.remove();},ExportDefaultDeclaration:function(path){var decl=path.node.declaration;if(decl.type==="FunctionDeclaration"||decl.type==="ClassDeclaration"){path.replaceWith(decl);}else{path.replaceWith({type:"VariableDeclaration",kind:"var",declarations:[{type:"VariableDeclarator",id:{type:"Identifier",name:"_default"},init:decl}]});}},ExportNamedDeclaration:function(path){if(path.node.declaration){path.replaceWith(path.node.declaration);}else{path.remove();}},ExportAllDeclaration:function(path){path.remove();}}};};
+var __dedupePlugin=function(){var _s={};return{visitor:{VariableDeclaration:function(p){if(p.parent.type!=="Program")return;if(p.node.kind!=="const"&&p.node.kind!=="let")return;var kept=[];for(var i=0;i<p.node.declarations.length;i++){var d=p.node.declarations[i];var n=d.id&&d.id.type==="Identifier"?d.id.name:null;if(n&&_s[n]){}else{if(n)_s[n]=true;kept.push(d);}}if(kept.length===0){p.remove();}else{p.node.declarations=kept;}}}}};
+var __jsxDecodePlugin=function(){function _d(v){v=v.replace(/\\u\{([0-9a-fA-F]+)\}/g,function(_,h){return String.fromCodePoint(parseInt(h,16));});v=v.replace(/\\u([0-9a-fA-F]{4})/g,function(_,h){return String.fromCharCode(parseInt(h,16));});return v;}return{visitor:{JSXText:function(p){p.node.value=_d(p.node.value);},StringLiteral:function(p){if(!p.parent||p.parent.type!=="JSXAttribute")return;p.node.value=_d(p.node.value);}}}};
+var __code="import React from 'https://esm.sh/react';\nimport ReactDOM from 'https://esm.sh/react-dom/client';\nimport { useState, useEffect, useRef, useMemo } from 'https://esm.sh/react';\n\n/* ============================================\n   ⚠️ 사용 전: 아래 4개 DB_ID에 실제 값을 넣어주세요\n   ============================================ */\nconst DB_SVC   = '여기에_SERVICE_SHOWCASE_DB_ID';\nconst DB_REV   = '여기에_CUSTOMER_REVIEW_DB_ID';\nconst DB_STORY = '여기에_WHISKY_STORY_DB_ID';\nconst DB_FAQ   = '여기에_FAQ_DB_ID';\n\n/* ============================================\n   유틸\n   ============================================ */\nfunction extractDbId(raw) {\n  if (!raw) return raw;\n  const s = String(raw).replace(/-/g, '');\n  const m = s.match(/([a-f0-9]{32})/i);\n  return m ? m[1] : raw;\n}\nfunction rtText(rt) {\n  if (!Array.isArray(rt)) return '';\n  return rt.map(t => t.plain_text || '').join('');\n}\nfunction getProp(props, key) {\n  if (!props) return null;\n  return props[key] ?? null;\n}\nfunction getValue(prop) {\n  if (!prop) return '';\n  switch (prop.type) {\n    case 'title':        return rtText(prop.title);\n    case 'rich_text':    return rtText(prop.rich_text);\n    case 'number':       return prop.number ?? '';\n    case 'select':       return prop.select?.name ?? '';\n    case 'multi_select': return (prop.multi_select || []).map(s => s.name);\n    case 'date':         return prop.date?.start ?? '';\n    case 'checkbox':     return !!prop.checkbox;\n    case 'url':          return prop.url ?? '';\n    case 'status':       return prop.status?.name ?? '';\n    case 'files': {\n      const f = (prop.files || [])[0];\n      if (!f) return '';\n      return f.type === 'external' ? (f.external?.url || '') : (f.file?.url || '');\n    }\n    default:             return '';\n  }\n}\nfunction escHtml(s) {\n  return String(s ?? '').replace(/[&<>\"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;', \"'\": '&#39;' }[c]));\n}\nfunction inlineMd(s) {\n  return escHtml(s).replace(/\\*\\*(.+?)\\*\\*/g, '<strong>$1</strong>').replace(/\\*(.+?)\\*/g, '<em>$1</em>');\n}\nfunction mdToHtml(md) {\n  if (!md) return '';\n  const lines = String(md).split(/\\r?\\n/);\n  let html = ''; let inUl = false; let inOl = false; let para = [];\n  const flushPara = () => { if (para.length) { html += '<p>' + inlineMd(para.join(' ')) + '</p>'; para = []; } };\n  const closeLists = () => { if (inUl) { html += '</ul>'; inUl = false; } if (inOl) { html += '</ol>'; inOl = false; } };\n  for (const raw of lines) {\n    const ln = raw.trim();\n    if (!ln) { flushPara(); closeLists(); continue; }\n    if (/^###\\s+/.test(ln)) { flushPara(); closeLists(); html += '<h3>' + inlineMd(ln.replace(/^###\\s+/, '')) + '</h3>'; continue; }\n    if (/^##\\s+/.test(ln))  { flushPara(); closeLists(); html += '<h2>' + inlineMd(ln.replace(/^##\\s+/, ''))  + '</h2>'; continue; }\n    if (/^#\\s+/.test(ln))   { flushPara(); closeLists(); html += '<h2>' + inlineMd(ln.replace(/^#\\s+/, ''))   + '</h2>'; continue; }\n    if (/^[-*]\\s+/.test(ln)) { flushPara(); if (inOl) { html += '</ol>'; inOl = false; } if (!inUl) { html += '<ul>'; inUl = true; } html += '<li>' + inlineMd(ln.replace(/^[-*]\\s+/, '')) + '</li>'; continue; }\n    if (/^\\d+\\.\\s+/.test(ln)) { flushPara(); if (inUl) { html += '</ul>'; inUl = false; } if (!inOl) { html += '<ol>'; inOl = true; } html += '<li>' + inlineMd(ln.replace(/^\\d+\\.\\s+/, '')) + '</li>'; continue; }\n    para.push(ln);\n  }\n  flushPara(); closeLists();\n  return html;\n}\nfunction parseStars(text) {\n  if (typeof text === 'number') return Math.max(1, Math.min(5, text));\n  const stars = (String(text || '').match(/⭐/g) || []).length;\n  return stars > 0 ? Math.min(5, stars) : 5;\n}\nfunction formatDate(iso) {\n  if (!iso) return '';\n  const d = new Date(iso);\n  if (isNaN(d.getTime())) return iso;\n  return d.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });\n}\n\n/* ============================================\n   Fallback 데이터\n   ============================================ */\nconst FALLBACK_SVC = [\n  { id: 's1', name: '맥캘란 18년 셰리오크', cat: '싱글몰트', price: '589,000원', dur: '700ml', desc: '셰리 캐스크 18년 숙성, 다크 초콜릿과 건과일의 깊은 향', detail: '스페이사이드의 정수를 담은 18년 셰리오크 싱글몰트.\\n\\n• 캐스크: Oloroso Sherry\\n• ABV: 43%\\n• 노징: 다크 초콜릿, 건무화과, 정향\\n• 페어링: 다크 초콜릿, 건과일, 시가', emoji: '🥃', status: '상시 판매' },\n  { id: 's2', name: '봄 시즌 테이스팅 클래스', cat: '클래스', price: '189,000원', dur: '주 1회 / 4주', desc: '소믈리에와 함께하는 4주 코스 — 입문자 환영', detail: '4주에 걸쳐 위스키의 세계를 체계적으로 배워보는 코스입니다.\\n\\n• 1주차: 위스키의 역사와 분류\\n• 2주차: 스카치 5대 산지 비교\\n• 3주차: 캐스크별 풍미 비교\\n• 4주차: 페어링 디너', emoji: '🍷', status: '모집중' },\n  { id: 's3', name: '캐스크 오너십 프로그램', cat: '캐스크', price: '문의', dur: '5\\~10년', desc: '나만의 위스키를 숙성하는 프리미엄 멤버십', detail: '스코틀랜드 증류소의 캐스크를 직접 소유하고 숙성 여정을 함께합니다.\\n\\n• 제휴 증류소: GlenAllachie, Tomatin 외\\n• 숙성 기간: 최소 5년\\n• 매년 시음 키트 발송', emoji: '🛢️', status: '상시 판매' },\n  { id: 's4', name: '월간 시그니처 박스', cat: '구독', price: '월 89,000원', dur: '매월 1회', desc: '엄선된 3종의 30ml 미니어처 + 테이스팅 노트', detail: '매월 큐레이터가 엄선한 위스키 3종을 30ml 단위로 보내드립니다.\\n\\n• 매월 다른 테마\\n• 전문 테이스팅 노트 동봉\\n• 온라인 라이브 시음회 초대', emoji: '📦', status: '모집중' },\n  { id: 's5', name: '프라이빗 페어링 디너', cat: '테이스팅', price: '380,000원/2인', dur: '약 3시간', desc: '셰프 4코스 + 위스키 페어링 4종', emoji: '🍽️', status: '상시 판매', detail: '청담동 시그니처 다이닝과 협업한 프라이빗 페어링 코스.\\n\\n• 4코스 디너 + 4잔 페어링\\n• 호스트 소믈리에 동석\\n• 주말 예약 권장' },\n];\n\nconst FALLBACK_REV = [\n  { id: 'r1', name: '김민준', stars: 5, text: '40대 남성입니다. 처음엔 위스키가 다 비슷하다고 생각했는데, 클래스 듣고 완전히 달라졌어요. 캐스크별로 향이 이렇게 다르다는 걸 처음 알았네요.', svc: '클래스', date: '2026-04-12' },\n  { id: 'r2', name: '이서연', stars: 5, text: '선물용으로 구매했는데 패키징이 정말 고급스러워요. 받는 분이 너무 좋아하셨습니다. 카드 메시지까지 세심하게 신경 써주시네요.', svc: '싱글몰트', date: '2026-04-08' },\n  { id: 'r3', name: '박지훈', stars: 5, text: '구독 박스 6개월째인데 매달 새로운 발견이 있어요. 혼자서는 절대 안 골랐을 위스키들을 만나는 재미가 큽니다.', svc: '구독', date: '2026-04-05' },\n  { id: 'r4', name: '최유나', stars: 4, text: '페어링 디너에 다녀왔습니다. 셰프와 소믈리에 분 모두 친절하셨고, 위스키와 음식의 조합이 신선했어요. 가격이 조금 부담이지만 특별한 날엔 추천!', svc: '테이스팅', date: '2026-03-28' },\n  { id: 'r5', name: '정현수', stars: 5, text: '캐스크 오너십 가입 후 매년 시음 키트를 받고 있는데, 시간이 갈수록 진해지는 향을 직접 느낄 수 있어 행복합니다.', svc: '캐스크', date: '2026-03-22' },\n  { id: 'r6', name: '한소영', stars: 5, text: '입문자 클래스 수료했고, 이제는 매장 가서 자신 있게 고를 수 있게 되었어요. 강사님이 정말 친절하셨습니다.', svc: '클래스', date: '2026-03-15' },\n];\n\nconst FALLBACK_STORIES = [\n  { id: 'b1', title: '위스키 입문자가 가장 자주 하는 5가지 오해', cat: '입문', summary: '\"비싼 게 좋은 거다\"는 사실일까? 입문자들이 흔히 빠지는 5가지 오해를 풀어봅니다.', body: '## 1. 비싼 위스키가 무조건 좋다?\\n\\n가격은 **숙성 연수, 마케팅, 희소성**에 영향을 받습니다. 본인 입맛에 맞는 위스키를 찾는 것이 더 중요합니다.\\n\\n## 2. 오래 숙성된 게 더 맛있다?\\n\\n숙성이 길수록 오크의 영향이 강해지지만, 그만큼 본래의 곡물 캐릭터는 옅어집니다. 12년이 18년보다 맛있다고 느끼는 사람도 많습니다.\\n\\n## 3. 얼음 넣으면 안 된다?\\n\\n취향의 영역입니다. 얼음을 넣으면 알코올의 자극이 줄어들어 부드럽게 즐길 수 있습니다.', emoji: '📖', author: '김위스키', date: '2026-04-20', readTime: 5, views: 1284, featured: true, tags: ['입문자', '가이드'] },\n  { id: 'b2', title: '스페이사이드 vs 아일라 — 어떤 차이?', cat: '싱글몰트', summary: '스카치 위스키의 두 거인, 스페이사이드와 아일라의 풍미 차이를 비교합니다.', body: '## 스페이사이드 — 우아한 셰리향\\n\\n맥캘란, 글렌피딕 등 부드러운 과일향이 특징입니다.\\n\\n## 아일라 — 강렬한 피트\\n\\n라가불린, 라프로익. 바다와 모닥불의 향이 진하게 납니다.', emoji: '🏴', author: '이소믈리에', date: '2026-04-15', readTime: 7, views: 892, featured: false, tags: ['스코틀랜드', '비교'] },\n  { id: 'b3', title: '위스키와 한식의 페어링', cat: '페어링', summary: '의외로 잘 어울리는 한식과 위스키의 조합 5가지.', body: '## 갈비 + 셰리 캐스크\\n\\n달달한 갈비양념과 건과일향 셰리 위스키는 환상의 궁합.\\n\\n## 광어회 + 라이트 보디\\n\\n글렌리벳 12년 같은 가벼운 위스키가 깔끔하게 어울립니다.', emoji: '🍱', author: '박페어링', date: '2026-04-10', readTime: 6, views: 743, featured: false, tags: ['페어링', '한식'] },\n  { id: 'b4', title: '나만의 캐스크를 갖는다는 것', cat: '캐스크', summary: '캐스크 오너십이 단순한 투자가 아닌 이유.', body: '## 시간을 사는 일\\n\\n캐스크 오너십은 5년, 10년, 20년의 시간을 사는 일입니다.\\n\\n## 매년 변화하는 향\\n\\n같은 캐스크라도 매년 향이 달라집니다. 그 변화 자체가 재미입니다.', emoji: '🛢️', author: '정캐스크', date: '2026-04-02', readTime: 8, views: 521, featured: false, tags: ['캐스크', '문화'] },\n  { id: 'b5', title: '위스키 잔, 정말 중요할까?', cat: '문화', summary: '글렌캐런 vs 록글라스 vs 튤립. 잔에 따라 정말 향이 달라질까요?', body: '## 글렌캐런\\n\\n위스키의 향을 모으는 데 최적화된 잔입니다.\\n\\n## 록글라스\\n\\n온더록 전용. 향보다는 시각적 만족.', emoji: '🥂', author: '한큐레이터', date: '2026-03-25', readTime: 4, views: 412, featured: false, tags: ['도구', '입문'] },\n];\n\nconst FALLBACK_FAQ = [\n  { id: 'f1', q: '주문 후 배송은 얼마나 걸리나요?', a: '결제 완료 후 평균 2\\~3 영업일 내 출고됩니다. 도서산간 지역은 1\\~2일 추가될 수 있습니다.', cat: '주문·배송', order: 1 },\n  { id: 'f2', q: '미성년자도 구매 가능한가요?', a: '주류 판매법에 따라 만 19세 이상만 구매 가능하며, 수령 시 신분증 확인이 필수입니다.', cat: '주문·배송', order: 2 },\n  { id: 'f3', q: '구독은 언제든 해지할 수 있나요?', a: '네, 결제일 7일 전까지 마이페이지에서 자유롭게 해지하실 수 있습니다. 위약금은 없습니다.', cat: '구독', order: 3 },\n  { id: 'f4', q: '클래스에 와인잔을 챙겨가야 하나요?', a: '아니요. 모든 시음용 글렌캐런 잔, 워터, 노트는 현장에서 제공됩니다.', cat: '클래스', order: 4 },\n  { id: 'f5', q: '병에 하자가 있을 때 교환되나요?', a: '수령 후 7일 이내, 미개봉 상태에 한하여 교환·환불해드립니다. 사진과 함께 고객센터로 문의해주세요.', cat: '상품', order: 5 },\n  { id: 'f6', q: '캐스크 오너십 최소 금액은?', a: '캐스크 종류와 증류소에 따라 다르지만, 보통 2,000만원부터 시작합니다. 자세한 상담은 문의 폼을 이용해주세요.', cat: '상품', order: 6 },\n];\n\n/* ============================================\n   Notion DB 로더 (이미지 포함)\n   ============================================ */\nasync function fetchDbImageFor(pageId) {\n  try {\n    const r = await fetch(`/api/notion/blocks/${pageId}/children?page_size=10`);\n    const data = await r.json();\n    const imgBlock = (data.results || []).find(b => b.type === 'image');\n    if (!imgBlock) return null;\n    const img = imgBlock.image;\n    return img.type === 'external' ? img.external.url : img.file?.url || null;\n  } catch { return null; }\n}\n\nasync function loadServices() {\n  const id = extractDbId(DB_SVC);\n  if (!id || id.length !== 32) return FALLBACK_SVC;\n  const res = await fetch(`/api/notion/databases/${id}/query`, {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify({ page_size: 12 }),\n  });\n  const data = await res.json();\n  const results = data.results || [];\n  if (!results.length) return FALLBACK_SVC;\n  const items = await Promise.all(results.map(async page => ({\n    id: page.id,\n    name: getValue(getProp(page.properties, '서비스명')) || '이름 없음',\n    cat: getValue(getProp(page.properties, '카테고리')) || '기타',\n    price: getValue(getProp(page.properties, '가격')) || '',\n    dur: getValue(getProp(page.properties, '소요시간')) || '',\n    desc: getValue(getProp(page.properties, '설명')) || '',\n    detail: getValue(getProp(page.properties, '상세 설명')) || '',\n    status: getValue(getProp(page.properties, '상태')) || '상시 판매',\n    emoji: '🥃',\n    img: await fetchDbImageFor(page.id),\n  })));\n  return items;\n}\n\nasync function loadReviews() {\n  const id = extractDbId(DB_REV);\n  if (!id || id.length !== 32) return FALLBACK_REV;\n  const res = await fetch(`/api/notion/databases/${id}/query`, {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify({\n      page_size: 9,\n      filter: { property: '공개 여부', checkbox: { equals: true } },\n      sorts: [{ property: '작성일', direction: 'descending' }],\n    }),\n  });\n  const data = await res.json();\n  const results = data.results || [];\n  if (!results.length) return FALLBACK_REV;\n  return results.map(page => ({\n    id: page.id,\n    name: getValue(getProp(page.properties, '고객명')) || '익명',\n    stars: parseStars(getValue(getProp(page.properties, '별점'))),\n    text: getValue(getProp(page.properties, '후기 내용')) || '',\n    svc: getValue(getProp(page.properties, '서비스 종류')) || '',\n    date: getValue(getProp(page.properties, '작성일')) || '',\n  }));\n}\n\nasync function loadStories() {\n  const id = extractDbId(DB_STORY);\n  if (!id || id.length !== 32) return FALLBACK_STORIES;\n  const res = await fetch(`/api/notion/databases/${id}/query`, {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify({\n      page_size: 20,\n      filter: { property: '상태', status: { equals: '발행' } },\n      sorts: [{ property: '발행일', direction: 'descending' }],\n    }),\n  });\n  const data = await res.json();\n  const results = data.results || [];\n  if (!results.length) return FALLBACK_STORIES;\n  const items = await Promise.all(results.map(async page => {\n    const coverUrl = getValue(getProp(page.properties, '대표이미지URL'));\n    const img = coverUrl || await fetchDbImageFor(page.id);\n    return {\n      id: page.id,\n      title: getValue(getProp(page.properties, '제목')) || '제목 없음',\n      cat: getValue(getProp(page.properties, '카테고리')) || '문화',\n      summary: getValue(getProp(page.properties, '요약')) || '',\n      body: getValue(getProp(page.properties, '본문')) || '',\n      emoji: getValue(getProp(page.properties, '썸네일이모지')) || '📖',\n      author: getValue(getProp(page.properties, '저자')) || 'Angel\\'s Share',\n      date: getValue(getProp(page.properties, '발행일')) || '',\n      readTime: Number(getValue(getProp(page.properties, '읽는시간'))) || 5,\n      views: Number(getValue(getProp(page.properties, '조회수'))) || 0,\n      featured: !!getValue(getProp(page.properties, '추천')),\n      tags: getValue(getProp(page.properties, '태그')) || [],\n      img,\n    };\n  }));\n  return items;\n}\n\nasync function loadFaqs() {\n  const id = extractDbId(DB_FAQ);\n  if (!id || id.length !== 32) return FALLBACK_FAQ;\n  const res = await fetch(`/api/notion/databases/${id}/query`, {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify({\n      page_size: 50,\n      filter: { property: '공개 여부', checkbox: { equals: true } },\n      sorts: [{ property: '정렬순서', direction: 'ascending' }],\n    }),\n  });\n  const data = await res.json();\n  const results = data.results || [];\n  if (!results.length) return FALLBACK_FAQ;\n  return results.map(page => ({\n    id: page.id,\n    q: getValue(getProp(page.properties, '질문')) || '',\n    a: getValue(getProp(page.properties, '답변')) || '',\n    cat: getValue(getProp(page.properties, '카테고리')) || '기타',\n    order: Number(getValue(getProp(page.properties, '정렬순서'))) || 999,\n  }));\n}\n\n/* ============================================\n   IntersectionObserver 훅\n   ============================================ */\nfunction useReveal() {\n  useEffect(() => {\n    const els = document.querySelectorAll('.anim');\n    const io = new IntersectionObserver(entries => {\n      entries.forEach(e => {\n        if (e.isIntersecting) { e.target.classList.add('show'); io.unobserve(e.target); }\n      });\n    }, { threshold: 0.12 });\n    els.forEach(el => io.observe(el));\n    return () => io.disconnect();\n  });\n}\n\n/* ============================================\n   공통 컴포넌트\n   ============================================ */\nfunction Spinner({ msg }) {\n  return (\n    <div className=\"state-msg\">\n      <span className=\"spinner\"></span>{msg || '불러오는 중…'}\n    </div>\n  );\n}\n\nfunction Empty({ msg }) {\n  return <div className=\"state-msg\">{msg || '데이터가 없습니다'}</div>;\n}\n\nfunction Stars({ n }) {\n  const cn = Math.max(0, Math.min(5, Number(n) || 0));\n  return <div className=\"rev-stars\">{'★'.repeat(cn)}{'☆'.repeat(5 - cn)}</div>;\n}\n\nfunction Avatar({ name }) {\n  const initial = (name || '?').slice(0, 1);\n  return <div className=\"rev-avatar\">{initial}</div>;\n}\n\n/* ============================================\n   Nav\n   ============================================ */\nfunction Nav({ view, goHome, goBlog }) {\n  const scrollTo = (id) => {\n    if (view !== 'home') { goHome(id); return; }\n    const el = document.getElementById(id);\n    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });\n  };\n  const blogActive = view === 'blog' || view === 'article' ? ' nav-active' : '';\n  return (\n    <nav className=\"nav\">\n      <div className=\"container nav-inner\">\n        <button className=\"nav-logo\" onClick={() => goHome()}>🥃 <span>Angel's Share</span></button>\n        <div className=\"nav-links\">\n          <button onClick={() => scrollTo('services')}>위스키</button>\n          <button onClick={() => scrollTo('process')}>이용 방법</button>\n          <button onClick={() => scrollTo('reviews')}>후기</button>\n          <button className={'nav-blog' + blogActive} onClick={() => goBlog()}>위스키 스토리</button>\n          <button onClick={() => scrollTo('faq')}>FAQ</button>\n        </div>\n        <button className=\"btn btn-primary nav-cta\" onClick={() => scrollTo('cta')}>주문하기</button>\n      </div>\n    </nav>\n  );\n}\n\n/* ============================================\n   Hero\n   ============================================ */\nfunction Hero({ goBlog }) {\n  const scrollTo = (id) => {\n    const el = document.getElementById(id);\n    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });\n  };\n  return (\n    <section className=\"hero\" id=\"hero\">\n      <div className=\"hero-inner\">\n        <span className=\"chip\">🏆 2026 위스키 어워드 수상</span>\n        <h1>한 잔의 여유,<br/><span className=\"grad-text\">세상에서 가장 깊은 한 모금.</span></h1>\n        <p className=\"hero-sub\">큐레이션, 교육, 경험을 통합한 프리미엄 위스키 브랜드<br/>입문자부터 마니아까지, 당신의 취향을 깊이 들여다봅니다.</p>\n        <div className=\"hero-cta\">\n          <button className=\"btn btn-primary btn-lg\" onClick={() => scrollTo('services')}>컬렉션 둘러보기</button>\n          <button className=\"btn btn-ghost btn-lg\" onClick={() => scrollTo('reviews')}>고객 후기</button>\n          <button className=\"btn btn-ghost btn-lg\" onClick={() => goBlog()}>📖 위스키 스토리</button>\n        </div>\n        <div className=\"hero-stats\">\n          <div><div className=\"stat-num grad\">300+</div><div className=\"stat-label\">큐레이션 보틀</div></div>\n          <div><div className=\"stat-num grad\">5.0 ★</div><div className=\"stat-label\">평균 별점</div></div>\n          <div><div className=\"stat-num grad\">98%</div><div className=\"stat-label\">재구매율</div></div>\n        </div>\n      </div>\n      <div className=\"scroll-hint\">↓ 스크롤하여 더 알아보기</div>\n    </section>\n  );\n}\n\n/* ============================================\n   Trust Bar\n   ============================================ */\nfunction TrustBar() {\n  const items = ['Whisky Magazine', 'JW Awards 2026', '한국소믈리에협회', 'Forbes Korea', 'The Spirits Business'];\n  return (\n    <section className=\"trust\">\n      <div className=\"container\">\n        <div className=\"trust-label\">As Featured In</div>\n        <div className=\"trust-list\">\n          {items.map(t => <span key={t} className=\"trust-item\">{t}</span>)}\n        </div>\n      </div>\n    </section>\n  );\n}\n\n/* ============================================\n   Services\n   ============================================ */\nfunction Services() {\n  const [items, setItems] = useState(null);\n  const [filter, setFilter] = useState('전체');\n  const [active, setActive] = useState(null);\n\n  useEffect(() => {\n    loadServices().then(setItems).catch(() => setItems(FALLBACK_SVC));\n  }, []);\n\n  useEffect(() => {\n    if (!active) return;\n    document.body.style.overflow = 'hidden';\n    const onKey = (e) => { if (e.key === 'Escape') setActive(null); };\n    window.addEventListener('keydown', onKey);\n    return () => { document.body.style.overflow = ''; window.removeEventListener('keydown', onKey); };\n  }, [active]);\n\n  const cats = useMemo(() => {\n    if (!items) return ['전체'];\n    const set = new Set(items.map(i => i.cat).filter(Boolean));\n    return ['전체', ...Array.from(set)];\n  }, [items]);\n\n  const filtered = useMemo(() => {\n    if (!items) return [];\n    return filter === '전체' ? items : items.filter(i => i.cat === filter);\n  }, [items, filter]);\n\n  const statusClass = (s) => s === '모집중' ? 'svc-tag status-open' : 'svc-tag status-always';\n\n  return (\n    <section id=\"services\" className=\"sec-dark\">\n      <div className=\"container\">\n        <div className=\"sec-head anim\">\n          <span className=\"eyebrow\">위스키 컬렉션</span>\n          <h2>당신만의 한 잔을 큐레이션합니다</h2>\n          <p>전문 소믈리에가 엄선한 프리미엄 위스키부터 입문자 클래스까지</p>\n        </div>\n\n        {!items && <Spinner msg=\"위스키 컬렉션을 불러오는 중…\" />}\n\n        {items && (\n          <>\n            <div className=\"filter-bar anim\">\n              {cats.map(c => (\n                <button key={c} className={'f-chip' + (c === filter ? ' active' : '')} onClick={() => setFilter(c)}>{c}</button>\n              ))}\n            </div>\n            {filtered.length === 0 ? <Empty /> : (\n              <div className=\"svc-grid\">\n                {filtered.map(s => (\n                  <article key={s.id} className=\"svc-card anim\" onClick={() => setActive(s)}>\n                    <div className=\"svc-thumb\">\n                      {s.img ? <img src={s.img} alt={s.name} onError={(e) => { e.currentTarget.style.display = 'none'; }} /> : null}\n                      {!s.img && <div className=\"svc-thumb-fb\">{s.emoji || '🥃'}</div>}\n                    </div>\n                    <div className=\"svc-body\">\n                      <div className=\"svc-meta\">\n                        <span className=\"svc-tag cat\">{s.cat}</span>\n                        {s.dur && <span className=\"svc-tag\">{s.dur}</span>}\n                        <span className={statusClass(s.status)}>{s.status}</span>\n                      </div>\n                      <h3>{s.name}</h3>\n                      <p>{s.desc}</p>\n                      <div className=\"svc-price\">{s.price}</div>\n                    </div>\n                  </article>\n                ))}\n              </div>\n            )}\n          </>\n        )}\n      </div>\n\n      {active && (\n        <div className=\"modal-overlay\" onClick={() => setActive(null)}>\n          <div className=\"modal\" onClick={(e) => e.stopPropagation()}>\n            <button className=\"modal-close\" onClick={() => setActive(null)}>✕</button>\n            <div className=\"modal-thumb\">\n              {active.img ? <img src={active.img} alt={active.name} /> : <span>{active.emoji || '🥃'}</span>}\n            </div>\n            <div className=\"modal-body\">\n              <div className=\"modal-meta\">\n                <span className=\"svc-tag cat\">{active.cat}</span>\n                {active.dur && <span className=\"svc-tag\">{active.dur}</span>}\n                <span className={statusClass(active.status)}>{active.status}</span>\n              </div>\n              <h2>{active.name}</h2>\n              <div className=\"modal-desc\">{active.detail || active.desc}</div>\n              <div className=\"modal-foot\">\n                <span className=\"modal-price\">{active.price}</span>\n                <button className=\"btn btn-primary\">주문하기</button>\n              </div>\n            </div>\n          </div>\n        </div>\n      )}\n    </section>\n  );\n}\n\n/* ============================================\n   Process\n   ============================================ */\nfunction Process() {\n  const steps = [\n    { i: '🔍', t: '취향 상담', d: '선호하는 맛과 예산을 알려주세요' },\n    { i: '🍷', t: '위스키 추천', d: '전문 소믈리에가 맞춤 추천' },\n    { i: '📦', t: '주문 & 배송', d: '프리미엄 패키징으로 안전 배송' },\n    { i: '🥃', t: '즐기시기', d: '테이스팅 가이드와 함께 우아한 한 잔' },\n  ];\n  return (\n    <section id=\"process\">\n      <div className=\"container\">\n        <div className=\"sec-head anim\">\n          <span className=\"eyebrow\">이용 프로세스</span>\n          <h2>4단계로 만나는 당신의 위스키</h2>\n        </div>\n        <div className=\"proc-grid\">\n          {steps.map((s, i) => (\n            <div key={i} className=\"proc-step anim\">\n              <div className=\"proc-icon\">{s.i}</div>\n              <h3>{s.t}</h3>\n              <p>{s.d}</p>\n            </div>\n          ))}\n        </div>\n      </div>\n    </section>\n  );\n}\n\n/* ============================================\n   Reviews\n   ============================================ */\nfunction Reviews() {\n  const [items, setItems] = useState(null);\n  const [idx, setIdx] = useState(-1);\n\n  useEffect(() => {\n    loadReviews().then(setItems).catch(() => setItems(FALLBACK_REV));\n  }, []);\n\n  useEffect(() => {\n    if (idx < 0) return;\n    document.body.style.overflow = 'hidden';\n    const onKey = (e) => {\n      if (e.key === 'Escape') setIdx(-1);\n      if (e.key === 'ArrowLeft' && idx > 0) setIdx(idx - 1);\n      if (e.key === 'ArrowRight' && items && idx < items.length - 1) setIdx(idx + 1);\n    };\n    window.addEventListener('keydown', onKey);\n    return () => { document.body.style.overflow = ''; window.removeEventListener('keydown', onKey); };\n  }, [idx, items]);\n\n  const avg = useMemo(() => {\n    if (!items || !items.length) return 0;\n    return (items.reduce((s, r) => s + (r.stars || 5), 0) / items.length).toFixed(1);\n  }, [items]);\n\n  return (\n    <section id=\"reviews\" className=\"sec-dark\">\n      <div className=\"container\">\n        <div className=\"sec-head anim\">\n          <span className=\"eyebrow\">고객 후기</span>\n          <h2>고객의 한 잔, 그 이야기</h2>\n        </div>\n\n        {!items && <Spinner />}\n\n        {items && items.length === 0 && <Empty />}\n\n        {items && items.length > 0 && (\n          <>\n            <div className=\"rev-banner anim\">\n              <div><div className=\"rev-stat-num grad-text\">{avg} ★</div><div className=\"rev-stat-label\">평균 별점</div></div>\n              <div><div className=\"rev-stat-num grad-text\">{items.length}+</div><div className=\"rev-stat-label\">실제 후기</div></div>\n              <div><div className=\"rev-stat-num grad-text\">98%</div><div className=\"rev-stat-label\">재구매율</div></div>\n            </div>\n            <div className=\"rev-grid\">\n              {items.map((r, i) => (\n                <article key={r.id} className=\"rev-card anim\" onClick={() => setIdx(i)}>\n                  <Stars n={r.stars} />\n                  <p className=\"rev-quote\">\"{r.text}\"</p>\n                  <div className=\"rev-foot\">\n                    <Avatar name={r.name} />\n                    <div>\n                      <div className=\"rev-name\">{r.name}</div>\n                      <div className=\"rev-date\">{formatDate(r.date)}</div>\n                    </div>\n                  </div>\n                  {r.svc && <div className=\"rev-svc\"><span className=\"svc-tag cat\">{r.svc}</span></div>}\n                </article>\n              ))}\n            </div>\n          </>\n        )}\n      </div>\n\n      {idx >= 0 && items && items[idx] && (\n        <div className=\"modal-overlay\" onClick={() => setIdx(-1)}>\n          <div className=\"modal\" onClick={(e) => e.stopPropagation()}>\n            <button className=\"modal-close\" onClick={() => setIdx(-1)}>✕</button>\n            <div className=\"car-nav\">\n              <button className=\"car-arrow\" disabled={idx === 0} onClick={() => setIdx(idx - 1)}>←</button>\n              <span className=\"car-idx\">{idx + 1} / {items.length}</span>\n              <button className=\"car-arrow\" disabled={idx === items.length - 1} onClick={() => setIdx(idx + 1)}>→</button>\n            </div>\n            <div className=\"modal-body\">\n              <Stars n={items[idx].stars} />\n              <p className=\"modal-desc modal-quote\">\"{items[idx].text}\"</p>\n              <div className=\"rev-foot rev-foot-modal\">\n                <Avatar name={items[idx].name} />\n                <div>\n                  <div className=\"rev-name\">{items[idx].name}</div>\n                  <div className=\"rev-date\">{formatDate(items[idx].date)} · {items[idx].svc}</div>\n                </div>\n              </div>\n            </div>\n          </div>\n        </div>\n      )}\n    </section>\n  );\n}\n\n/* ============================================\n   FAQ\n   ============================================ */\nfunction FaqSection() {\n  const [items, setItems] = useState(null);\n  const [filter, setFilter] = useState('전체');\n  const [openId, setOpenId] = useState(null);\n\n  useEffect(() => {\n    loadFaqs().then(setItems).catch(() => setItems(FALLBACK_FAQ));\n  }, []);\n\n  const cats = useMemo(() => {\n    if (!items) return ['전체'];\n    return ['전체', ...Array.from(new Set(items.map(i => i.cat).filter(Boolean)))];\n  }, [items]);\n\n  const filtered = useMemo(() => {\n    if (!items) return [];\n    return filter === '전체' ? items : items.filter(i => i.cat === filter);\n  }, [items, filter]);\n\n  return (\n    <section id=\"faq\">\n      <div className=\"container\">\n        <div className=\"sec-head anim\">\n          <span className=\"eyebrow\">자주 묻는 질문</span>\n          <h2>FAQ</h2>\n        </div>\n\n        {!items && <Spinner />}\n\n        {items && (\n          <>\n            <div className=\"filter-bar anim\">\n              {cats.map(c => (\n                <button key={c} className={'f-chip' + (c === filter ? ' active' : '')} onClick={() => setFilter(c)}>{c}</button>\n              ))}\n            </div>\n            {filtered.length === 0 ? <Empty /> : (\n              <div className=\"faq-wrap anim\">\n                {filtered.map(f => (\n                  <div key={f.id} className={'faq-item' + (openId === f.id ? ' open' : '')}>\n                    <button className=\"faq-q\" onClick={() => setOpenId(openId === f.id ? null : f.id)}>\n                      <span>{f.q}</span>\n                      <span className=\"faq-arrow\">⌃</span>\n                    </button>\n                    <div className=\"faq-a\">{f.a}</div>\n                  </div>\n                ))}\n              </div>\n            )}\n          </>\n        )}\n      </div>\n    </section>\n  );\n}\n\n/* ============================================\n   Review Form\n   ============================================ */\nfunction CustomSelect({ value, options, onChange, placeholder }) {\n  const [open, setOpen] = useState(false);\n  const wrapRef = useRef(null);\n  useEffect(() => {\n    const onClick = (e) => { if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false); };\n    document.addEventListener('click', onClick);\n    return () => document.removeEventListener('click', onClick);\n  }, []);\n  return (\n    <div className={'cs-wrap' + (open ? ' cs-open' : '')} ref={wrapRef}>\n      <button type=\"button\" className=\"form-select-trigger\" onClick={() => setOpen(o => !o)}>\n        <span>{value || placeholder}</span>\n        <span className=\"cs-arrow\">⌃</span>\n      </button>\n      {open && (\n        <div className=\"cs-menu\">\n          {options.map(opt => (\n            <button type=\"button\" key={opt} className=\"cs-opt\" onClick={() => { onChange(opt); setOpen(false); }}>\n              <span>{opt}</span>\n              {value === opt && <span className=\"cs-check\">✓</span>}\n            </button>\n          ))}\n        </div>\n      )}\n    </div>\n  );\n}\n\nfunction ReviewForm() {\n  const [form, setForm] = useState({ name: '', svc: '', stars: 5, text: '' });\n  const [submitted, setSubmitted] = useState(false);\n  const [busy, setBusy] = useState(false);\n  const services = ['싱글몰트', '테이스팅', '클래스', '캐스크', '구독'];\n\n  const onSubmit = async (e) => {\n    e.preventDefault();\n    if (!form.name || !form.svc || !form.text) return;\n    setBusy(true);\n    const id = extractDbId(DB_REV);\n    if (id && id.length === 32) {\n      try {\n        await fetch('/api/notion/pages', {\n          method: 'POST',\n          headers: { 'Content-Type': 'application/json' },\n          body: JSON.stringify({\n            parent: { database_id: id },\n            properties: {\n              '고객명':      { title: [{ text: { content: form.name } }] },\n              '별점':        { select: { name: '⭐'.repeat(form.stars) } },\n              '서비스 종류': { select: { name: form.svc } },\n              '후기 내용':   { rich_text: [{ text: { content: form.text } }] },\n              '작성일':      { date: { start: new Date().toISOString().slice(0, 10) } },\n              '공개 여부':   { checkbox: false },\n            },\n          }),\n        });\n      } catch { /* UX 우선: 실패해도 성공 화면 표시 */ }\n    }\n    setBusy(false);\n    setSubmitted(true);\n  };\n\n  const reset = () => { setForm({ name: '', svc: '', stars: 5, text: '' }); setSubmitted(false); };\n\n  return (\n    <section id=\"review-form\" className=\"sec-dark\">\n      <div className=\"container\">\n        <div className=\"sec-head anim\">\n          <span className=\"eyebrow\">후기 작성</span>\n          <h2>당신의 한 잔, 들려주세요</h2>\n          <p>운영자 검토 후 공개됩니다</p>\n        </div>\n        <div className=\"form-wrap anim\">\n          <div className=\"form-card\">\n            {submitted ? (\n              <div className=\"form-success\">\n                <div className=\"emoji\">🎉</div>\n                <h3>후기 등록 완료!</h3>\n                <p className=\"form-success-msg\">소중한 후기 감사합니다. 운영자 검토 후 공개됩니다.</p>\n                <button className=\"btn btn-ghost\" onClick={reset}>새 후기 작성하기</button>\n              </div>\n            ) : (\n              <form onSubmit={onSubmit}>\n                <div className=\"form-row\">\n                  <label className=\"form-label\">이름</label>\n                  <input className=\"form-input\" type=\"text\" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder=\"홍길동\" required />\n                </div>\n                <div className=\"form-row\">\n                  <label className=\"form-label\">서비스 종류</label>\n                  <CustomSelect value={form.svc} options={services} onChange={v => setForm(f => ({ ...f, svc: v }))} placeholder=\"선택해주세요\" />\n                </div>\n                <div className=\"form-row\">\n                  <label className=\"form-label\">별점</label>\n                  <div className=\"star-row\">\n                    {[1, 2, 3, 4, 5].map(n => (\n                      <button type=\"button\" key={n} className={'star-btn' + (n <= form.stars ? ' on' : '')} onClick={() => setForm(f => ({ ...f, stars: n }))}>★</button>\n                    ))}\n                  </div>\n                </div>\n                <div className=\"form-row\">\n                  <label className=\"form-label\">후기 내용</label>\n                  <textarea className=\"form-textarea\" value={form.text} onChange={e => setForm(f => ({ ...f, text: e.target.value }))} placeholder=\"위스키와 함께한 경험을 들려주세요\" required />\n                </div>\n                <button type=\"submit\" className=\"btn btn-primary btn-lg btn-block\" disabled={busy}>\n                  {busy ? '등록 중…' : '후기 등록하기'}\n                </button>\n              </form>\n            )}\n          </div>\n        </div>\n      </div>\n    </section>\n  );\n}\n\n/* ============================================\n   CTA\n   ============================================ */\nfunction Cta() {\n  const scrollTo = (id) => {\n    const el = document.getElementById(id);\n    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });\n  };\n  return (\n    <section id=\"cta\">\n      <div className=\"container\">\n        <div className=\"cta-wrap anim\">\n          <span className=\"eyebrow\">지금 시작하세요</span>\n          <h2>당신만의 한 잔을 발견할 시간</h2>\n          <p>전문 소믈리에가 큐레이션한 위스키와 함께, 깊고 우아한 시간을 만들어보세요.</p>\n          <div className=\"cta-btns\">\n            <button className=\"btn btn-primary btn-lg\" onClick={() => scrollTo('services')}>컬렉션 둘러보기</button>\n            <button className=\"btn btn-ghost btn-lg\" onClick={() => scrollTo('review-form')}>후기 작성하기</button>\n          </div>\n          <span className=\"cta-note\">🎁 첫 주문 시 무료 테이스팅 노트 제공</span>\n        </div>\n      </div>\n    </section>\n  );\n}\n\n/* ============================================\n   Footer\n   ============================================ */\nfunction Footer({ goBlog }) {\n  return (\n    <footer className=\"foot\">\n      <div className=\"container\">\n        <div className=\"foot-inner\">\n          <div className=\"foot-brand\">🥃 Angel's Share</div>\n          <div className=\"foot-links\">\n            <button className=\"foot-link-strong\" onClick={goBlog}>📖 위스키 스토리</button>\n            <button>이용약관</button>\n            <button>개인정보처리방침</button>\n            <button>문의하기</button>\n          </div>\n        </div>\n        <div className=\"foot-copy\">© 2026 Angel's Share. All rights reserved.</div>\n      </div>\n    </footer>\n  );\n}\n\n/* ============================================\n   Blog (목록)\n   ============================================ */\nfunction Blog({ goArticle }) {\n  const [items, setItems] = useState(null);\n  const [filter, setFilter] = useState('전체');\n\n  useEffect(() => {\n    loadStories().then(setItems).catch(() => setItems(FALLBACK_STORIES));\n  }, []);\n\n  const cats = useMemo(() => {\n    if (!items) return ['전체'];\n    return ['전체', ...Array.from(new Set(items.map(i => i.cat).filter(Boolean)))];\n  }, [items]);\n\n  const filtered = useMemo(() => {\n    if (!items) return [];\n    return filter === '전체' ? items : items.filter(i => i.cat === filter);\n  }, [items, filter]);\n\n  useReveal();\n\n  return (\n    <>\n      <section className=\"blog-hero\">\n        <div className=\"container\">\n          <h1>위스키 <em>스토리</em></h1>\n          <p>큐레이터가 풀어내는 위스키의 이야기. 입문자부터 마니아까지.</p>\n        </div>\n      </section>\n      <div className=\"container\">\n        {!items && <Spinner msg=\"스토리를 불러오는 중…\" />}\n        {items && (\n          <>\n            <div className=\"filter-bar\">\n              {cats.map(c => (\n                <button key={c} className={'f-chip' + (c === filter ? ' active' : '')} onClick={() => setFilter(c)}>{c}</button>\n              ))}\n            </div>\n            {filtered.length === 0 ? <Empty /> : (\n              <div className=\"blog-grid\">\n                {filtered.map(s => (\n                  <article key={s.id} className={'blog-card' + (s.featured ? ' featured' : '')} onClick={() => goArticle(s)}>\n                    <div className=\"blog-thumb\">\n                      {s.img ? <img src={s.img} alt={s.title} onError={(e) => { e.currentTarget.style.display = 'none'; }} /> : null}\n                      {!s.img && <span>{s.emoji || '📖'}</span>}\n                    </div>\n                    <div className=\"blog-body\">\n                      <span className=\"blog-cat\">{s.cat}</span>\n                      <h3>{s.title}</h3>\n                      <p>{s.summary}</p>\n                      <div className=\"blog-meta\">\n                        <span>{s.author}</span>\n                        <span className=\"blog-meta-dot\"></span>\n                        <span>{formatDate(s.date)}</span>\n                        <span className=\"blog-meta-dot\"></span>\n                        <span>{s.readTime}분</span>\n                        <span className=\"blog-meta-dot\"></span>\n                        <span>👁 {s.views}</span>\n                      </div>\n                    </div>\n                  </article>\n                ))}\n              </div>\n            )}\n          </>\n        )}\n      </div>\n    </>\n  );\n}\n\n/* ============================================\n   Article (상세)\n   ============================================ */\nfunction Article({ article, goBlog }) {\n  useEffect(() => { window.scrollTo({ top: 0, behavior: 'smooth' }); }, [article]);\n  const html = useMemo(() => mdToHtml(article.body || ''), [article]);\n  return (\n    <section className=\"article\">\n      <div className=\"container article-inner\">\n        <button className=\"article-back\" onClick={goBlog}>← 스토리 목록</button>\n        <span className=\"article-cat\">{article.cat}</span>\n        <h1>{article.title}</h1>\n        <div className=\"article-meta\">\n          <Avatar name={article.author} />\n          <span>{article.author}</span>\n          <span className=\"blog-meta-dot\"></span>\n          <span>{formatDate(article.date)}</span>\n          <span className=\"blog-meta-dot\"></span>\n          <span>{article.readTime}분</span>\n          <span className=\"blog-meta-dot\"></span>\n          <span>👁 {article.views}</span>\n        </div>\n        <div className=\"article-img\">\n          {article.img ? <img src={article.img} alt={article.title} /> : <span>{article.emoji || '📖'}</span>}\n        </div>\n        <div className=\"article-body\" ref={(el) => { if (el) el.innerHTML = html; }} />\n        {article.tags && article.tags.length > 0 && (\n          <div className=\"article-tags\">\n            {article.tags.map(t => <span key={t} className=\"article-tag\">{t}</span>)}\n          </div>\n        )}\n      </div>\n    </section>\n  );\n}\n\n/* ============================================\n   App (View Switcher)\n   ============================================ */\nfunction Home({ goBlog }) {\n  useReveal();\n  return (\n    <>\n      <Hero goBlog={goBlog} />\n      <TrustBar />\n      <Services />\n      <Process />\n      <Reviews />\n      <FaqSection />\n      <ReviewForm />\n      <Cta />\n    </>\n  );\n}\n\nfunction App() {\n  const [view, setView] = useState('home');\n  const [article, setArticle] = useState(null);\n  const [pendingScroll, setPendingScroll] = useState(null);\n\n  const goHome = (anchor) => { setView('home'); if (anchor) setPendingScroll(anchor); };\n  const goBlog = () => { setView('blog'); window.scrollTo({ top: 0 }); };\n  const goArticle = (s) => { setArticle(s); setView('article'); };\n\n  useEffect(() => {\n    if (view === 'home' && pendingScroll) {\n      const id = pendingScroll;\n      setPendingScroll(null);\n      setTimeout(() => {\n        const el = document.getElementById(id);\n        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });\n      }, 80);\n    }\n  }, [view, pendingScroll]);\n\n  return (\n    <>\n      <Nav view={view} goHome={goHome} goBlog={goBlog} />\n      {view === 'home'    && <Home goBlog={goBlog} />}\n      {view === 'blog'    && <Blog goArticle={goArticle} />}\n      {view === 'article' && article && <Article article={article} goBlog={goBlog} />}\n      <Footer goBlog={goBlog} />\n    </>\n  );\n}\n\nReactDOM.createRoot(document.getElementById('root')).render(<App />);";
+var __result=Babel.transform(__code,{filename:"app.tsx",presets:["react","typescript"],plugins:[__stripPlugin,__dedupePlugin,__jsxDecodePlugin],generatorOpts:{jsescOption:{minimal:true}},sourceType:"module"});
+var __s=document.createElement("script");__s.type="module";__s.textContent=__result.code;document.head.appendChild(__s);
+</script>
+</body></html>
